@@ -1,0 +1,8 @@
+sherpa-onnx==1.13.8
+numpy==2.5.3
+sounddevice==0.5.5
+comtypes==1.4.17
+pypinyin==0.55.0
+jieba==0.42.1
+soxr==1.1.0
+opencc==1.4.2

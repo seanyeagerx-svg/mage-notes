@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+*.pyc
+models/
+data/
+settings.json
+user_settings.json
+*.log
+work/
+outputs/
+output/
+handoffs/
+tmp/
+*.sqlite*
+*.db
+*.local.*
+*.zip
