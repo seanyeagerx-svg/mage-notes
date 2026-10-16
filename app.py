@@ -419,7 +419,7 @@ class App:
             widget.edit_separator()
         else:
             if (window_process(self.target) != self.target_process
-                    or not replace_owned_tail(source, corrected, self.target, self.target_control)):
+                    or not replace_owned_tail(source, corrected, self.target, self.target_control, process=self.target_process)):
                 return False
             mirror = self.dict_text.get("1.0", "end-1c")
             if mirror.endswith(source):
@@ -1295,7 +1295,9 @@ class App:
         if self.capture_index is not None and (foreground()!=top_handle(self.root) or self.tabs.select()!=self.settings_tab):
             self.cancel_key_capture()
         if self.state.mode != "idle" and not self.state.paused and not self.stopping:
-            blocked = not self.internal and (foreground() != self.target or (self.target_control and focused_control(self.target) != self.target_control))
+            blocked = not self.internal and (foreground() != self.target
+                       or window_process(self.target) != self.target_process
+                       or not self.target_control or focused_control(self.target) != self.target_control)
             if blocked != self.focus_blocked:
                 self.sender.cancel("已切换输入位置，已取消发送。")
                 self.sender.reset_segment()
@@ -1318,14 +1320,16 @@ class App:
                 self.pending.clear()
                 self.resume_position_pending = False
                 widget.see("insert")
-            elif foreground() != self.target or (self.target_control and focused_control(self.target) != self.target_control):
+            elif (foreground() != self.target or window_process(self.target) != self.target_process
+                  or not self.target_control or focused_control(self.target) != self.target_control):
                 self.pending.clear()
                 self.status.set("目标窗口已改变，未自动输入的文字保留在转写副本中")
             else:
                 try:
                     text = "".join(self.pending)
                     epoch = self._begin_owned()
-                    if type_unicode(text, self.target, move_to_end=self.resume_position_pending):
+                    if type_unicode(text, self.target, move_to_end=self.resume_position_pending,
+                                    control=self.target_control, process=self.target_process):
                         self.sender.written = self.sender.written or bool(text.strip())
                         self._append_owned(text, epoch)
                         self.pending.clear()

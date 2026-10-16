@@ -161,10 +161,23 @@ def modifiers_down():
     return any(user32.GetAsyncKeyState(vk) & 0x8000 for vk in (0x10, 0x11, 0x12, 0x5B, 0x5C))
 
 
-def type_unicode(text: str, target=None, move_to_end=False):
+def _input_target_matches(target, control, process):
+    """Fail closed if the original window, field or process changed."""
+    return bool(target and control and process and foreground() == target
+                and window_process(target) == process
+                and focused_control(target) == control)
+
+
+def type_unicode(text: str, target=None, move_to_end=False, *, control=None, process=None):
     if not text:
         return True
-    if target and foreground() != target:
+    if not target:
+        return False
+    if control is None:
+        control = focused_control(target)
+    if process is None:
+        process = window_process(target)
+    if not _input_target_matches(target, control, process):
         return False
     if modifiers_down():
         return False
@@ -183,6 +196,11 @@ def type_unicode(text: str, target=None, move_to_end=False):
         events.append(INPUT(type=1, ki=KEYBDINPUT(0, code, 0x0004, 0, TAG)))
         events.append(INPUT(type=1, ki=KEYBDINPUT(0, code, 0x0004 | 0x0002, 0, TAG)))
     array = (INPUT * len(events))(*events)
+    # Constructing a large batch, or the caller's work before this adapter,
+    # can outlive the original focus check. Recheck the exact field immediately
+    # before the OS side effect; a different field in the same window is unsafe.
+    if not _input_target_matches(target, control, process) or modifiers_down():
+        return False
     count = user32.SendInput(len(events), array, C.sizeof(INPUT))
     if count != len(events):
         raise OSError("文字输入被 Windows 拒绝；请确认目标软件没有以管理员身份运行。")
@@ -217,7 +235,7 @@ def send_shortcut(target, control, key="enter"):
     return True
 
 
-def replace_owned_tail(original, replacement, target, control):
+def replace_owned_tail(original, replacement, target, control, *, process=None):
     """Replace only the just-typed untouched tail, never select the whole field.
 
     Caller must also check its physical-input epoch and generation. Multi-codepoint
@@ -234,7 +252,9 @@ def replace_owned_tail(original, replacement, target, control):
     if any(ord(char) > 0xFFFF or unicodedata.combining(char) or unicodedata.category(char).startswith("M")
            or char in "\r\n\t" for char in original):
         return False
-    if foreground() != target or focused_control(target) != control or modifiers_down():
+    if process is None:
+        process = window_process(target)
+    if not _input_target_matches(target, control, process) or modifiers_down():
         return False
     # Backspace has no modifier state to get lost through IMEs/accessibility
     # providers. Only our untouched BMP tail is eligible; never select-all.
@@ -249,6 +269,8 @@ def replace_owned_tail(original, replacement, target, control):
             events += [INPUT(type=1, ki=KEYBDINPUT(0, value, 4, 0, TAG)),
                        INPUT(type=1, ki=KEYBDINPUT(0, value, 6, 0, TAG))]
     batch = (INPUT*len(events))(*events)
+    if not _input_target_matches(target, control, process) or modifiers_down():
+        return False
     if user32.SendInput(len(events), batch, C.sizeof(INPUT)) != len(events):
         raise OSError("自动修正输入未完成，已停止继续改写。")
     return True

@@ -2,7 +2,7 @@
 
 Windows 本地语音草稿工具。把语音变成可保存的文字，积累自己的词库，并整理创作需求。
 
-**公开测试版 `1.0.0-beta10-public.1`** · Python 源码交付 · MIT（本项目代码）
+**公开测试版 `1.0.0-beta10-public.2`** · Python 源码交付 · MIT（本项目代码）
 
 [安装](#安装与启动) · [真实演示](DEMO.md) · [运行验证](VALIDATION.md) · [第三方说明](THIRD_PARTY_NOTICES.md)
 
@@ -23,7 +23,7 @@ Windows 本地语音草稿工具。把语音变成可保存的文字，积累自
 已实测 Windows、Python **3.14.6**，CPU 识别。请安装带 Tcl/Tk 的标准版 Python 3.14，
 从 [python.org](https://www.python.org/downloads/windows/) 获取；模型约 160 MiB，另需依赖安装空间。
 
-1. 从 [版本源码包](https://github.com/seanyeagerx-svg/mage-notes/archive/refs/tags/v1.0.0-beta10-public.1.zip)
+1. 从 [版本源码包](https://github.com/seanyeagerx-svg/mage-notes/archive/refs/tags/v1.0.0-beta10-public.2.zip)
    下载 ZIP，**完整解压**到可写目录。
 2. 双击 `Install.cmd`，只会在当前目录建立 `.venv` 并安装依赖。
 3. 双击 `DownloadModels.cmd`，下载固定版本的基础中文模型并校验散列。
@@ -71,6 +71,7 @@ API Key 使用 Windows DPAPI 存入本机 `data/`，不随公开包提供。
 - 识别会有错字。演示中“本机”识别为“本期”，原始结果保留，需人工复核。
 - 提示模型缺失：检查四个文件是否完整，或重新运行 `DownloadModels.cmd`。
 - 提示音频设备问题：在设置里重新选择设备；本轮未做真人麦克风验收。
+- `public.2` 修复外部输入框切换时的误输：发送文字及回改前重新核对原窗口、原输入框和所属进程。
 - 提示可选增强模型不存在：基础听写仍可用，不必下载全部增强模型。
 - 运行失败：在 PowerShell 运行上面的命令查看提示，公开反馈前删除私人路径和内容。
-- 未验证第二台电脑、长期运行、全部历史功能或所有可选模型；具体证据见 [VALIDATION.md](VALIDATION.md)。
+- 外部输入已在独立进程的原生文本框实测；未验证所有编辑器、第二台电脑、长期运行、全部历史功能或所有可选模型，详见 [VALIDATION.md](VALIDATION.md)。

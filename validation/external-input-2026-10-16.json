@@ -1,0 +1,70 @@
+{
+  "checks": [
+    {
+      "name": "real SendInput: Chinese, English, numbers, non-BMP Unicode",
+      "pass": true,
+      "detail": {
+        "actual": "已有正文：今天测试 Codex 和 Kiro，编号123。🦞",
+        "other_field_empty": true
+      }
+    },
+    {
+      "name": "real native multiline field: newline",
+      "pass": true,
+      "detail": "第一行\r\n第二行"
+    },
+    {
+      "name": "real native field: correct only the owned tail",
+      "pass": true,
+      "detail": {
+        "preserved_prefix_chars": 550
+      }
+    },
+    {
+      "name": "adapter blocks a different foreground window",
+      "pass": true,
+      "detail": "blocked"
+    },
+    {
+      "name": "real App dispatch writes into the external process",
+      "pass": true,
+      "detail": {
+        "external_process": true,
+        "mirror_matches": true
+      }
+    },
+    {
+      "name": "App pauses and resumes after switching fields in one window",
+      "pass": true,
+      "detail": "pause and resume passed"
+    },
+    {
+      "name": "focus race between App precheck and SendInput",
+      "pass": true,
+      "detail": "blocked even when focus changes immediately before send"
+    },
+    {
+      "name": "late ASR result from an old session",
+      "pass": true,
+      "detail": "stale generation discarded"
+    },
+    {
+      "name": "real local ASR file replay -> app -> native external process",
+      "pass": true,
+      "detail": {
+        "actual": "识别输入：今天测试离线语音输入请把这段文字保存为草稿音频只在本期处理",
+        "shadow_matches": true,
+        "partial_before_stop": true,
+        "audio_source": "bundled synthetic WAV",
+        "microphone_opened": false
+      }
+    }
+  ],
+  "passed": 9,
+  "failed": 0,
+  "microphone_opened": false,
+  "microphone_attempts": 0,
+  "network_attempts": 0,
+  "global_hooks_started": false,
+  "external_fixture_exited": true
+}
